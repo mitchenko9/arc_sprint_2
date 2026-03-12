@@ -67,65 +67,62 @@
   - Поддомен "Обработка и маршрутизация событий"
 
       6.2.1 контекст "внутренняя маршрутизация" — объект "событие", репозиторий "консьюмеры Kafka, обработка и логирование"
-      
+
       6.2.2 контекст "внешние потребители" — объект "поток событий", репозиторий "Kafka Consumer рекомендательной системы"
 
 <details>
 <summary>Контейнерная диаграмма будущей системы</summary>
 
-![](diagrams/container/containerDiagram.png)
+![](diagrams/containers/containerDiagram.png)
 </details>
 
 ## Задание 2
 
-### 1. Proxy
-Команда КиноБездны уже выделила сервис метаданных о фильмах movies и вам необходимо реализовать бесшовный переход с применением паттерна Strangler Fig в части реализации прокси-сервиса (API Gateway), с помощью которого можно будет постепенно переключать траффик, используя фиче-флаг.
+Как запустить тесты локально из корня проекта:
+```
+// Собрать все образы
+docker-compose build
 
+// Запустить все сервисы в фоне
+docker-compose up -d
 
-Реализуйте сервис на любом языке программирования в ./src/microservices/proxy.
-Конфигурация для запуска сервиса через docker-compose уже добавлена
-```yaml
-  proxy-service:
-    build:
-      context: ./src/microservices/proxy
-      dockerfile: Dockerfile
-    container_name: cinemaabyss-proxy-service
-    depends_on:
-      - monolith
-      - movies-service
-      - events-service
-    ports:
-      - "8000:8000"
-    environment:
-      PORT: 8000
-      MONOLITH_URL: http://monolith:8080
-      #монолит
-      MOVIES_SERVICE_URL: http://movies-service:8081 #сервис movies
-      EVENTS_SERVICE_URL: http://events-service:8082 
-      GRADUAL_MIGRATION: "true" # вкл/выкл простого фиче-флага
-      MOVIES_MIGRATION_PERCENT: "50" # процент миграции
-    networks:
-      - cinemaabyss-network
+// Убедиться что все контейнеры запущены (статус Up)
+docker ps
+
+// Проверить логи конкретного сервиса
+docker logs cinemaabyss-events-service
+
+// Проверить что прокси отвечает
+curl http://localhost:8000/health
+
+// Проверить что монолит отвечает 
+curl http://localhost:18080/health
+
+// Перейти в папку тестов
+cd tests/postman
+
+// Установить зависимости один раз
+npm install
+
+// Запустить тесты против локальных портов
+npm run test:local
+
+// Остановить все контейнеры (данные сохраняются)
+cd ../../
+docker-compose down
+
+// Остановить и удалить volumes (сброс БД и Kafka)
+docker-compose down -v
 ```
 
-- После реализации запустите postman тесты - они все должны быть зеленые.
-- Отправьте запросы к API Gateway:
-   ```bash
-   curl http://localhost:8000/api/movies
-   ```
-- Протестируйте постепенный переход, изменив переменную окружения MOVIES_MIGRATION_PERCENT в файле docker-compose.yml.
+Проверка состояния топиков Kafka http://localhost:8090 
 
-### 2. Kafka
- Вам как архитектуру нужно также проверить гипотезу насколько просто реализовать применение Kafka в данной архитектуре.
+<details>
+<summary>Подтверждающие скриншоты</summary>
 
-Для этого нужно сделать MVP сервис events, который будет при вызове API создавать и сам же читать сообщения в топике Kafka.
-
-    - Разработайте сервис на любом языке программирования с consumer'ами и producer'ами.
-    - Реализуйте простой API, при вызове которого будут создаваться события User/Payment/Movie и обрабатываться внутри сервиса с записью в лог
-    - Добавьте в docker-compose новый сервис, kafka там уже есть
-
-Необходимые тесты для проверки этого API вызываются при запуске npm run test:local из папки tests/postman 
-Приложите скриншот тестов и скриншот состояния топиков Kafka http://localhost:8090 
+![](tests/screens/tests.png)
+![](tests/screens/topics.jpg)
+</details>
 
 
 ## Задание 3
