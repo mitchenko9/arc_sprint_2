@@ -297,10 +297,9 @@ cat .docker/config.json | base64
 
 
 #### Шаг 3
-Добавьте сюда скриншота вывода при вызове https://cinemaabyss.example.com/api/movies и  скриншот вывода event-service после вызова тестов.
 
 <details>
-<summary>Подтверждающие скриншоты</summary>
+<summary>Подтверждающие скриншоты к третьему шагу</summary>
 
 ![](tests/screens/eventServiceLog.jpg)
 ![](tests/screens/moviesList.jpg)
@@ -378,9 +377,16 @@ kubectl get pods -n cinemaabyss
 minikube tunnel
 ```
 
-Потом вызовите 
+Потом дерните круслом  
 https://cinemaabyss.example.com/api/movies
-и приложите скриншот развертывания helm и вывода https://cinemaabyss.example.com/api/movies
+
+
+<details>
+<summary>Подтверждающие скриншоты к четвертому шагу</summary>
+
+![](tests/screens/helmLog.jpg)
+![](tests/screens/helmMoviesList.jpg)
+</details>
 
 
 # Задание 5
