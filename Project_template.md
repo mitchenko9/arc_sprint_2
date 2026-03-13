@@ -298,7 +298,7 @@ cat .docker/config.json | base64
 #### Шаг 3
 
 <details>
-<summary>Подтверждающие скриншоты к третьему шагу</summary>
+<summary>Подтверждающие скриншоты к третьему заданию</summary>
 
 ![](tests/screens/eventServiceLog.jpg)
 ![](tests/screens/moviesList.jpg)
@@ -381,7 +381,7 @@ https://cinemaabyss.example.com/api/movies
 
 
 <details>
-<summary>Подтверждающие скриншоты к четвертому шагу</summary>
+<summary>Подтверждающие скриншоты к четвертому заданию</summary>
 
 ![](tests/screens/helmLog.jpg)
 ![](tests/screens/helmMoviesList.jpg)
