@@ -284,7 +284,6 @@ cat .docker/config.json | base64
   ```bash
    npm run test:kubernetes
   ```
-  Часть тестов с health-чек упадет, но создание событий отработает. - У меня все тесты прошли, это устаревшие данные или у меня чтото пошло не так?
   
   13. Откройте логи event-service
   ```bash
@@ -377,7 +376,7 @@ kubectl get pods -n cinemaabyss
 minikube tunnel
 ```
 
-Потом дерните круслом  
+Потом дерните курлом  
 https://cinemaabyss.example.com/api/movies
 
 
@@ -452,8 +451,6 @@ cluster.outbound|8081||movies-service.cinemaabyss.svc.cluster.local;.upstream_rq
 You can see 21 for the upstream_rq_pending_overflow value which means 21 calls so far have been flagged for circuit breaking.
 ```
 
-Приложите скриншот работы circuit breaker'а
-
 Удаляем все
 ```bash
 istioctl uninstall --purge
@@ -461,3 +458,9 @@ kubectl delete namespace istio-system
 kubectl delete all --all -n cinemaabyss
 kubectl delete namespace cinemaabyss
 ```
+
+<details>
+<summary>Подтверждающие скриншоты к пятому заданию</summary>
+
+![](tests/screens/circuitBreakerFortio.jpg)
+</details>
