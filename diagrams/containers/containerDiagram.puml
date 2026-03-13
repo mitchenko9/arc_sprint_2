@@ -1,0 +1,66 @@
+@startuml
+!include ../template/templateContainerC4.puml
+
+title Контейнерная диаграмма будущей архитектуры
+
+SHOW_PERSON_OUTLINE()
+
+Person(user, "Пользователь", "Зарегистрированный пользователь")
+System_Ext(recsys, "Рекомендательная система", "Потребляет события из Kafka - предлагает фильмы к просмотру на основе предпочтений")
+System_Ext(partners, "Партнёрские онлайн-кинотеатры", "Поставка контента по партнёрскому соглашению/подписке, считаем что у нас нет уровней подписки - одна подписка дает доступ ко всему контенту партнеров и нашему")
+
+System_Boundary(cinemAbyss, "Система Кинобездна") {
+  Container(gadgets, "Веб, мобильные, Смарт ТВ", "React Native", "Пользователь взаимодействует с системой через приложения на разных девайсах")
+
+  Container(gateway, "API Gateway", "HTTP, REST", "Единая точка входа")
+
+  Container(identity, "User Service", "Go, HTTP", "Авторизация и аутентификация, личный кабинет")
+  Container(catalog, "Catalog Service", "Go, HTTP", "Метаданные фильмов, жанры, рейтинг")
+  Container(billing, "Billing Service", "Go, HTTP", "Платежи, подписки, скидки")
+  Container(engagement, "Engagement Service", "Go, HTTP", "Просмотры, оценки, отзывы")
+
+  Container(streaming, "Streaming Service", "HLS/DASH, HTTP", "Доставка видеопотока: свой контент и партнёрский")
+
+  Container(events, "Events Service", "Go, HTTP/Kafka", "Публикация и маршрутизация событий")
+  ContainerQueue(kafka, "Kafka", "Брокер сообщений", "Транспорт событий")
+  ContainerDb(identity_db, "User DB", "PostgreSQL", "Данные User Service ")
+  ContainerDb(catalog_db, "Catalog DB", "PostgreSQL", "Данные Catalog Service")
+  ContainerDb(billing_db, "Billing DB", "PostgreSQL", "Данные Billing Service")
+  ContainerDb(engagement_db, "Engagement DB", "PostgreSQL", "Данные Engagement Service")
+  ContainerDb(media_store, "Хранилище медиа", "CDN", "Видео собственного контента (не транзакционные)")
+}
+
+Rel(user, gadgets, "Взаимодействует с системой через приложения на платформах: веб, мобильные, Смарт ТВ")
+Rel(gadgets, gateway, "REST", "HTTPS")
+Rel(gadgets, streaming, "Просмотр контента", "HLS/DASH, HTTPS")
+
+Rel(streaming, gateway, "Проверка доступа (токен, подписка)", "REST, HTTPS")
+
+Rel(gateway, identity, "Маршрутизация", "REST, /api/users")
+Rel(gateway, catalog, "Маршрутизация", "REST, /api/movies")
+Rel(gateway, billing, "Маршрутизация", "REST, /api/payments, /api/subscriptions")
+Rel(gateway, engagement, "Маршрутизация", "REST, /api/views, /api/ratings")
+Rel(gateway, events, "События по запросу", "REST")
+
+Rel(identity, identity_db, "Чтение/запись", "SQL")
+Rel(catalog, catalog_db, "Чтение/запись", "SQL")
+Rel(billing, billing_db, "Чтение/запись", "SQL")
+Rel(engagement, engagement_db, "Чтение/запись", "SQL")
+
+Rel(streaming, catalog, "Метаданные и источник контента", "API")
+Rel(streaming, media_store, "Стриминг своего контента", "HTTP")
+Rel(streaming, partners, "Стриминг партнёрского контента", "API / поток")
+
+Rel(identity, events, "События User", "события")
+Rel(catalog, events, "События Movie", "события")
+Rel(billing, events, "События Payment, Subscription", "события")
+Rel(engagement, events, "События View, Rating", "события")
+
+Rel(events, kafka, "Публикация/потребление", "Kafka")
+
+Rel(kafka, recsys, "Поток событий", "Kafka Consumer")
+
+' Партнёрский контент: по подписке получаем контент от партнёрских онлайн-кинотеатров
+Rel(partners, catalog, "Поставка контента по партнёрской подписке", "API")
+
+@enduml

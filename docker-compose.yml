@@ -57,9 +57,10 @@ services:
       dockerfile: Dockerfile
     container_name: cinemaabyss-monolith
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     ports:
-      - "8080:8080"
+      - "18080:8080"
     environment:
       PORT: 8080
       DB_CONNECTION_STRING: postgres://postgres:postgres_password@postgres:5432/cinemaabyss?sslmode=disable
@@ -73,7 +74,8 @@ services:
       dockerfile: Dockerfile
     container_name: cinemaabyss-movies-service
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     ports:
       - "8081:8081"
     environment:
